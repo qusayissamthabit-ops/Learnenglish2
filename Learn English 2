@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة إنجليزي - تعليم شامل</title>
+    <!-- تحميل Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- تعيين الخط الافتراضي (Inter) -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            direction: rtl; /* دعم اللغة العربية من اليمين لليسار */
+            text-align: right;
+            background-color: #f7f9fc;
+        }
+        .text-arabic {
+            direction: rtl;
+            text-align: right;
+        }
+        /* تصميم زر التحريك */
+        .typing-cursor {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: currentColor;
+            border-radius: 50%;
+            margin-right: 2px;
+            animation: blink 0.7s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div id="app" class="flex flex-col min-h-screen">
+        <!-- شريط التنقل العلوي -->
+        <header class="bg-gray-800 shadow-lg text-white p-4 sticky top-0 z-10">
+            <div class="container mx-auto flex flex-wrap justify-between items-center text-arabic">
+                <h1 class="text-3xl font-extrabold tracking-wide mb-2 md:mb-0">منصة إنجليزي</h1>
+                <nav class="flex flex-wrap space-x-2 space-x-reverse md:space-x-4 md:space-x-reverse text-sm md:text-xl">
+                    <button onclick="navigate('home')" class="nav-btn transition duration-300 hover:text-indigo-400 p-2 font-medium">الرئيسية</button>
+                    <button onclick="navigate('vocabulary')" class="nav-btn transition duration-300 hover:text-indigo-400 p-2 font-medium">المعاني الشاملة</button>
+                    <button onclick="navigate('practice')" class="nav-btn transition duration-300 hover:text-indigo-400 p-2 font-medium">ممارسة (الذكاء الاصطناعي)</button>
+                    <button onclick="navigate('stories')" class="nav-btn transition duration-300 hover:text-indigo-400 p-2 font-medium">القصص</button>
+                    <button onclick="navigate('flashcards')" class="nav-btn transition duration-300 hover:text-indigo-400 p-2 font-medium">البطاقات الذهنية</button>
+                </nav>
+            </div>
+        </header>
+
+        <!-- المحتوى الرئيسي -->
+        <main class="container mx-auto p-4 flex-grow text-arabic">
+            <!-- عرض حالة التحميل (لجميع العمليات) -->
+            <div id="loading-overlay" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-50 hidden items-center justify-center">
+                <div class="flex flex-col items-center bg-white p-6 rounded-xl shadow-2xl">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-t-4 border-indigo-500 border-opacity-75 mb-3"></div>
+                    <p class="text-indigo-700 font-semibold">جاري معالجة طلبك مع Gemini...</p>
+                </div>
+            </div>
+
+            <!-- 1. صفحة الرئيسية ومستويات CEFR -->
+            <section id="home-view" class="view">
+                <h2 class="text-4xl font-bold text-gray-800 mb-8 mt-4 text-center">اختر مستواك للوصول لـ **جميع القواعد** والدروس</h2>
+                <div id="levels-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- سيتم إنشاء بطاقات المستويات هنا بواسطة JavaScript -->
+                </div>
+                <!-- عرض تفاصيل المستوى عند النقر -->
+                <div id="level-detail-card" class="mt-12 p-8 bg-white rounded-2xl shadow-xl border-t-4 border-indigo-500 hidden">
+                    <h3 id="detail-level-title" class="text-3xl font-bold text-indigo-700 mb-4 border-b pb-2"></h3>
+                    <p id="detail-level-description" class="text-lg text-gray-600 mb-6"></p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <button onclick="showContent('grammar', currentLevel)" class="p-4 bg-green-600 text-white font-semibold rounded-xl shadow-md hover:bg-green-700 transition duration-300">القواعد الشاملة</button>
+                        <button onclick="showContent('vocabulary', currentLevel)" class="p-4 bg-yellow-600 text-white font-semibold rounded-xl shadow-md hover:bg-yellow-700 transition duration-300">المفردات الأساسية</button>
+                        <button onclick="showContent('multimedia', currentLevel)" class="p-4 bg-red-600 text-white font-semibold rounded-xl shadow-md hover:bg-red-700 transition duration-300">الدروس المرئية/المسموعة</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. صفحة تفاصيل المحتوى (قواعد، مفردات، دروس) -->
+            <section id="content-view" class="view hidden">
+                <button onclick="navigate('home')" class="flex items-center text-indigo-600 hover:text-indigo-800 mb-6 font-semibold transition duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5M10.5 6H21m0 0l-5.25 5.25M21 6L15.75 1.5"></path>
+                    </svg>
+                    العودة للمستويات
+                </button>
+                <h2 id="content-title" class="text-4xl font-bold text-indigo-700 mb-6 border-b-2 pb-2"></h2>
+                <div id="content-area" class="bg-white p-6 rounded-2xl shadow-xl prose prose-lg max-w-none text-arabic">
+                    <!-- يتم تحميل محتوى القواعد/المفردات/الدروس هنا -->
+                </div>
+            </section>
+
+            <!-- 3. صفحة ممارسة اللغة بالذكاء الاصطناعي (AI Chat) -->
+            <section id="practice-view" class="view hidden">
+                <h2 class="text-4xl font-bold text-indigo-700 mb-3 text-center">شريكك للتدريب بالذكاء الاصطناعي (مدعوم بـ Gemini)</h2>
+                <p class="text-gray-600 text-center mb-6">يمكنك التدرب بالإنجليزية أو طلب المساعدة بالعربية.</p>
+                <div class="max-w-3xl mx-auto bg-white rounded-3xl shadow-2xl flex flex-col h-[70vh]">
+                    <!-- منطقة الدردشة -->
+                    <div id="chat-box" class="flex-grow p-4 overflow-y-auto space-y-4 border-b">
+                        <!-- رسالة ترحيب من الذكاء الاصطناعي -->
+                        <div class="flex justify-end">
+                            <div class="max-w-xs sm:max-w-md bg-indigo-100 p-4 rounded-t-xl rounded-bl-xl shadow-md text-indigo-800">
+                                مرحباً بك! أنا شريكك اللغوي، Gemini. أخبرني ماذا تود أن نتحدث عنه اليوم؟ يمكننا التدرب على أي موضوع أو مستوى تختار.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- إدخال الرسالة -->
+                    <div class="p-4 flex space-x-2 space-x-reverse">
+                        <input type="text" id="user-input" placeholder="اكتب رسالتك بالإنجليزية أو العربية هنا..." class="flex-grow p-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-indigo-500 text-lg transition duration-200 text-arabic">
+                        <button id="send-btn" onclick="sendChatMessage()" class="bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 transition duration-300 disabled:opacity-50">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. صفحة المعاني الشاملة (آلاف المعاني) -->
+            <section id="vocabulary-view" class="view hidden">
+                <h2 class="text-4xl font-bold text-indigo-700 mb-6 text-center">مكتبة المعاني الشاملة (آلاف المفردات)</h2>
+
+                <div class="bg-white p-6 rounded-2xl shadow-xl mb-6">
+                    <div class="flex flex-wrap items-center space-x-4 space-x-reverse mb-4">
+                        <input type="text" id="vocab-search" placeholder="ابحث عن كلمة إنجليزية أو معنى عربي..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 text-lg transition duration-200 text-arabic">
+                        <select id="vocab-level-filter" class="p-3 border border-gray-300 rounded-lg text-lg">
+                            <option value="">جميع المستويات</option>
+                            <option value="A1">A1</option>
+                            <option value="A2">A2</option>
+                            <option value="B1">B1</option>
+                            <option value="B2">B2</option>
+                            <option value="C1">C1</option>
+                            <option value="C2">C2</option>
+                        </select>
+                        <button onclick="renderFullVocabulary()" class="bg-indigo-600 text-white p-3 rounded-lg hover:bg-indigo-700 transition duration-300">تطبيق</button>
+                    </div>
+
+                    <div id="vocabulary-results" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-[50vh] overflow-y-auto p-2 border rounded-lg bg-gray-50">
+                        <!-- نتائج البحث والتصفية تظهر هنا -->
+                        <div class="text-center p-8 text-gray-500">
+                            <p class="text-xl">ابدأ بالبحث أو اختر مستوى لعرض المفردات.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. صفحة القصص -->
+            <section id="stories-view" class="view hidden">
+                <h2 class="text-4xl font-bold text-indigo-700 mb-6 text-center">مكتبة القصص والمقالات المقسمة حسب المستوى</h2>
+                <div id="stories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- سيتم إنشاء بطاقات القصص هنا بواسطة JavaScript -->
+                </div>
+            </section>
+
+            <!-- 6. صفحة بطاقات المفردات والخرائط الذهنية -->
+            <section id="flashcards-view" class="view hidden">
+                <h2 class="text-4xl font-bold text-indigo-700 mb-6 text-center">بطاقات المفردات والخرائط الذهنية</h2>
+
+                <h3 class="text-3xl font-bold text-gray-800 my-8 text-center border-t pt-6">الخرائط الذهنية (Mind Maps)</h3>
+                <div id="mindmap-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- سيتم إنشاء بطاقات الخرائط الذهنية هنا بواسطة JavaScript -->
+                </div>
+            </section>
+
+        </main>
+
+        <!-- تذييل الصفحة -->
+        <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+            <p class="text-sm text-arabic">منصة إنجليزي - تعلم اللغة الإنجليزية مدعومة بـ Gemini</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        // متغيرات Firebase Global (مطلوبة للبيئة)
+        // **ملاحظة:** يرجى وضع مفتاح API الخاص بـ Gemini هنا لضمان عمل الدردشة.
+        const apiKey = ""; // استبدل هذا بمفتاح API الخاص بك هنا
+
+        // ---------------------------------------------
+        // 1. البيانات الموسعة (لتحقيق الشمولية)
+        // ---------------------------------------------
+
+        const levelsData = {
+            'A1': { title: 'مبتدئ A1', description: 'أساسيات الجمل والتحيات والأرقام. (المفاهيم الأولى)', color: 'bg-green-600' },
+            'A2': { title: 'أساسي A2', description: 'التعبير عن الروتين والحياة اليومية والخطط المستقبلية البسيطة. (التواصل المحدود)', color: 'bg-lime-600' },
+            'B1': { title: 'متوسط B1', description: 'التعامل مع معظم المواقف في السفر، والتعبير عن الآراء. (الاستقلال)', color: 'bg-yellow-600' },
+            'B2': { title: 'متوسط متقدم B2', description: 'فهم النصوص المعقدة والمناقشة بطلاقة حول مواضيع مجردة. (الكفاءة)', color: 'bg-orange-600' },
+            'C1': { title: 'متقدم C1', description: 'التعبير بطلاقة وعفوية، واستخدام تراكيب لغوية معقدة في سياقات أكاديمية أو مهنية. (الإتقان العملي)', color: 'bg-red-600' },
+            'C2': { title: 'إتقان C2', description: 'فهم كل ما يُسمع أو يُقرأ والتعبير بدقة عالية جداً كمتحدث أصلي. (التمكن التام)', color: 'bg-pink-600' },
+        };
+
+        const contentData = {
+            'A1': {
+                grammar: '## قواعد A1: الأساسيات المطلقة\n\n**1. فعل الكينونة (To Be):** استخدام Am, Is, Are في الإثبات والنفي والسؤال.\n**2. المضارع البسيط (Present Simple):** استخدامه للروتين اليومي والحقائق.\n**3. حروف الجر الأساسية (Prepositions):** In, On, At للوقت والمكان.\n**4. الأسماء والجمع (Nouns & Plurals):** قاعدة الجمع بإضافة (s).\n**5. الصفات البسيطة (Adjectives):** استخدام صفات مثل big, small قبل الأسماء.\n**6. أسئلة Yes/No وWh-Questions:** كيفية طرح أسئلة بسيطة مثل "Are you happy?" و "What is your name?".\n**7. الأفعال الأساسية (Basic Verbs):** استخدام أفعال مثل eat, drink, sleep في الجمل البسيطة.\n**8. الألوان والأرقام (Colors and Numbers):** دمجها في الجمل مثل "The apple is red." و "I have two books."',
+                vocabulary: '## مفردات A1: كلمات التواصل والحياة\n\n**1. التحيات:** Hello, Good morning, How are you?\n**2. الأسرة:** Mother, Father, Brother, Sister.\n**3. الأرقام والألوان:** One to ten, Red, Blue.\n**4. الأجزاء الجسم:** Head, Hand, Foot.\n**5. الطعام الأساسي:** Apple, Bread, Water.\n**6. الأماكن:** Home, School, Park.\n**7. الأيام والأشهر:** Monday, January.\n**8. المهن البسيطة:** Teacher, Doctor, Student.',
+                multimedia: '## دروس A1 المرئية والمسموعة\n\n**الدرس 1:** نطق الحروف والأصوات الأساسية.\n**الدرس 2:** محادثة بسيطة في السوبر ماركت.\n**الدرس 3:** فيديو عن الروتين اليومي (Waking up, Eating breakfast).\n**الدرس 4:** أغنية الألوان والأرقام.\n**الدرس 5:** بودكاست عن التحيات والوداع.\n**الدرس 6:** رسوم متحركة عن الأسرة والأصدقاء.\n**الدرس 7:** تمارين تفاعلية للأسئلة البسيطة.\n**الدرس 8:** قصة مصورة عن يوم في المدرسة.\n**الدرس 9:** درس عن الطعام الحلال والصحي.\n**الدرس 10:** تمرين على النطق الصحيح للكلمات الأساسية.',
+            },
+            'A2': {
+                grammar: '## قواعد A2: الروتين والحياة اليومية\n\n**1. المضارع المستمر (Present Continuous):** استخدامه للأحداث الجارية مثل "I am eating now."\n**2. الماضي البسيط (Past Simple):** للأحداث المكتملة مثل "I went to school yesterday."\n**3. المستقبل البسيط (Future Simple):** استخدام "will" للخطط المستقبلية.\n**4. حروف الجر الإضافية:** By, With, For.\n**5. المقارنة (Comparatives):** Bigger than, Smaller than.\n**6. الأفعال الناقصة (Modals):** Can, Must, Should.\n**7. الجمل المركبة:** استخدام and, but, or.\n**8. الصفات المقارنة والتفضيلية:** Good, Better, Best.',
+                vocabulary: '## مفردات A2: الروتين والخطط\n\n**1. الروتين اليومي:** Wake up, Breakfast, Work.\n**2. الهوايات:** Read, Play, Swim.\n**3. الطقس:** Sunny, Rainy, Cold.\n**4. الملابس:** Shirt, Pants, Shoes.\n**5. الطعام والشراب:** Lunch, Dinner, Tea.\n**6. النقل:** Bus, Car, Train.\n**7. العطلات:** Holiday, Weekend.\n**8. الأدوات المنزلية:** Chair, Lamp, Door.',
+                multimedia: '## دروس A2 المرئية والمسموعة\n\n**الدرس 1:** فيديو عن الروتين اليومي لعائلة مسلمة.\n**الدرس 2:** محادثة عن خطط نهاية الأسبوع.\n**الدرس 3:** أغنية عن الطقس والملابس.\n**الدرس 4:** بودكاست عن الهوايات الصحية.\n**الدرس 5:** رسوم متحركة عن السفر بالحافلة.\n**الدرس 6:** تمارين تفاعلية على الماضي البسيط.\n**الدرس 7:** درس عن الطعام الحلال في المطاعم.\n**الدرس 8:** قصة مصورة عن يوم في المدينة.\n**الدرس 9:** فيديو عن الأفعال الناقصة في السياقات اليومية.\n**الدرس 10:** تمرين على النطق للكلمات الجديدة.',
+            },
+            'B1': {
+                grammar: '## قواعد B1: الاستقلال في التواصل\n\n**1. الماضي المستمر (Past Continuous):** للأحداث الجارية في الماضي.\n**2. الحاضر التام (Present Perfect):** للتجارب حتى الآن.\n**3. الجمل الشرطية الأولى (First Conditional):** للفرضيات المحتملة.\n**4. المبني للمجهول البسيط (Passive Voice):** The book was read.\n**5. الصفات المركبة:** Well-known, Hard-working.\n**6. الأفعال الاصطلاحية الأساسية (Phrasal Verbs):** Get up, Turn on.\n**7. الروابط الزمنية:** When, While, After.\n**8. المستقبل المستمر (Future Continuous):** استخدامه للخطط المستمرة.',
+                vocabulary: '## مفردات B1: الآراء والسفر\n\n**1. السفر:** Airport, Hotel, Ticket.\n**2. الآراء:** Agree, Disagree, Opinion.\n**3. الصحة:** Doctor, Medicine, Healthy.\n**4. العمل:** Job, Salary, Meeting.\n**5. البيئة:** Nature, Recycle, Pollution.\n**6. التكنولوجيا:** Computer, Internet, Email.\n**7. الرياضة:** Football, Run, Team.\n**8. الثقافة:** Tradition, Festival, Custom.',
+                multimedia: '## دروس B1 المرئية والمسموعة\n\n**الدرس 1:** فيديو عن رحلة حلال إلى مدينة إسلامية.\n**الدرس 2:** محادثة عن الآراء في قضايا بيئية.\n**الدرس 3:** بودكاست عن الصحة والرياضة.\n**الدرس 4:** رسوم متحركة عن العمل والمهن.\n**الدرس 5:** تمارين تفاعلية على الحاضر التام.\n**الدرس 6:** درس عن التكنولوجيا في الحياة اليومية.\n**الدرس 7:** قصة مصورة عن مهرجان ثقافي.\n**الدرس 8:** فيديو عن الجمل الشرطية في السياقات الواقعية.\n**الدرس 9:** تمرين على النطق للأفعال الاصطلاحية.\n**الدرس 10:** درس عن الحفاظ على البيئة كمسلم.',
+            },
+            'B2': {
+                grammar: '## قواعد B2: التعقيد والربط\n\n**1. الأزمنة التامة المستمرة (Perfect Continuous Tenses):** فهم الفرق بين الماضي التام المستمر والحاضر التام المستمر.\n**2. الجمل الشرطية المتقدمة (Mixed Conditionals):** استخدام النوع الثالث والمختلط للتعبير عن الفرضيات المعقدة.\n**3. المبني للمجهول المتقدم (Advanced Passive):** استخدامه في السياقات الرسمية والأكاديمية (Reported Speech).\n**4. الأفعال الاصطلاحية المعقدة (Phrasal Verbs):** استخدام Look up to, Get away with, Run into.\n**5. الروابط السببية:** Because, Since, As.\n**6. الصفات المتقدمة:** Inevitable, Profound, Ubiquitous.\n**7. الكلام المباشر والغير مباشر (Direct/Indirect Speech):** تحويل الجمل.\n**8. المستقبل التام (Future Perfect):** للأحداث المكتملة في المستقبل.',
+                vocabulary: '## مفردات B2: الأكاديمية والمهنية\n\n**1. الربط والتعبير عن الرأي:** Moreover, Furthermore, In contrast, From my perspective.\n**2. الأفعال الأكثر شيوعاً في الأبحاث:** Analyze, Deduce, Propose, Substantiate.\n**3. المصطلحات البيئية:** Sustainable, Ecological footprint, Renewable.\n**4. الاقتصاد:** Economy, Investment, Profit.\n**5. العلوم:** Experiment, Hypothesis, Theory.\n**6. السياسة:** Government, Election, Policy.\n**7. الفنون:** Painting, Sculpture, Performance.\n**8. الاجتماع:** Society, Community, Culture.',
+                multimedia: '## دروس B2 المرئية والمسموعة\n\n**الدرس 1:** مهارات العرض التقديمي بالإنجليزية (Presentation Skills).\n**الدرس 2:** تحليل بودكاست عن التغير المناخي.\n**الدرس 3:** فيديو عن الاقتصاد الإسلامي.\n**الدرس 4:** رسوم متحركة عن العلوم الأساسية.\n**الدرس 5:** تمارين تفاعلية على الجمل الشرطية المختلطة.\n**الدرس 6:** درس عن السياسة الدولية بطريقة محايدة.\n**الدرس 7:** قصة مصورة عن الفنون الإسلامية.\n**الدرس 8:** فيديو عن الكلام الغير مباشر في المحادثات.\n**الدرس 9:** تمرين على النطق للمصطلحات العلمية.\n**الدرس 10:** درس عن المجتمع والتعاون.',
+            },
+            'C1': {
+                grammar: '## قواعد C1: الإتقان العملي\n\n**1. الأزمنة المتقدمة (Advanced Tenses):** استخدام Past Perfect Continuous و Future Perfect Continuous.\n**2. الجمل الشرطية المتقدمة جداً (Advanced Conditionals):** Wish, If only, Supposing.\n**3. المبني للمجهول في الأزمنة المعقدة:** Having been built, etc.\n**4. الأفعال الاصطلاحية المتقدمة:** Put up with, Come across, Break down.\n**5. الروابط المتقدمة:** Notwithstanding, Whereas, Hence.\n**6. الصفات والظروف المتقدمة:** Utterly, Profoundly, Inherently.\n**7. التراكيب الإنشائية:** Inversion, Emphasis.\n**8. الكلام المباشر المتقدم:** Reporting verbs like suggest, insist.',
+                vocabulary: '## مفردات C1: السياقات الأكاديمية والمهنية\n\n**1. المصطلحات القانونية:** Contract, Litigation, Jurisdiction.\n**2. الطب:** Diagnosis, Therapy, Symptom.\n**3. الأعمال:** Merger, Acquisition, Stakeholder.\n**4. الفلسفة:** Ethics, Morality, Virtue.\n**5. البحث:** Methodology, Empirical, Qualitative.\n**6. الإعلام:** Broadcast, Journalism, Media.\n**7. التاريخ:** Era, Revolution, Dynasty.\n**8. العلاقات الدولية:** Diplomacy, Treaty, Alliance.',
+                multimedia: '## دروس C1 المرئية والمسموعة\n\n**الدرس 1:** فيديو عن الفلسفة الإسلامية.\n**الدرس 2:** تحليل بودكاست عن التاريخ الإسلامي.\n**الدرس 3:** رسوم متحركة عن العلاقات الدولية.\n**الدرس 4:** تمارين تفاعلية على التراكيب الإنشائية.\n**الدرس 5:** درس عن الأعمال الحلال.\n**الدرس 6:** قصة مصورة عن الطب في العصور الإسلامية.\n**الدرس 7:** فيديو عن البحث العلمي.\n**الدرس 8:** تمرين على النطق للمصطلحات القانونية.\n**الدرس 9:** درس عن الإعلام والأخلاق.\n**الدرس 10:** محادثة متقدمة عن الدبلوماسية.',
+            },
+            'C2': {
+                grammar: '## قواعد C2: التمكن التام\n\n**1. التراكيب المتقدمة جداً:** Cleft sentences, Fronting.\n**2. الجمل الشرطية المعقدة:** Hypothetical past, present, future.\n**3. المبني للمجهول المتقدم جداً:** In all tenses and modals.\n**4. الأفعال الاصطلاحية المتخصصة:** Bear in mind, Take for granted, Fall through.\n**5. الروابط الأدبية:** Albeit, Lest, Whence.\n**6. الصفات النادرة:** Esoteric, Pernicious, Salubrious.\n**7. الكلام الغير مباشر المتقدم:** With advanced reporting verbs.\n**8. الإنشاءات الإيحائية:** Subjunctive mood in formal English.',
+                vocabulary: '## مفردات C2: الإتقان العالي\n\n**1. المصطلحات الأدبية:** Metaphor, Allegory, Satire.\n**2. العلوم المتقدمة:** Quantum, Neuroscience, Astrophysics.\n**3. الاقتصاد المتقدم:** Fiscal, Monetary, Deficit.\n**4. الفلسفة المتقدمة:** Existentialism, Nihilism, Epistemology.\n**5. السياسة المتقدمة:** Ideology, Hegemony, Sovereignty.\n**6. الفنون المتقدمة:** Avant-garde, Renaissance, Baroque.\n**7. اللغويات:** Syntax, Semantics, Pragmatics.\n**8. البيئة المتقدمة:** Biodiversity, Ecosystem, Sustainability.',
+                multimedia: '## دروس C2 المرئية والمسموعة\n\n**الدرس 1:** فيديو عن الفلسفة الإسلامية المتقدمة.\n**الدرس 2:** تحليل بودكاست عن العلوم الإسلامية.\n**الدرس 3:** رسوم متحركة عن الاقتصاد الإسلامي.\n**الدرس 4:** تمارين تفاعلية على الإنشاءات الإيحائية.\n**الدرس 5:** درس عن الأدب الإسلامي.\n**الدرس 6:** قصة مصورة عن التاريخ العلمي الإسلامي.\n**الدرس 7:** فيديو عن اللغويات.\n**الدرس 8:** تمرين على النطق للمصطلحات الأدبية.\n**الدرس 9:** درس عن البيئة والإسلام.\n**الدرس 10:** محادثة متقدمة عن السياسة الدولية.',
+            },
+        };
+
+        const storiesData = [
+            { level: 'A1', title: 'قصة أرنوب الصغير', summary: 'قصة قصيرة جداً عن حيوان أليف وحياته اليومية.', content: 'Rabbit is small. Rabbit eats carrots. Rabbit jumps high. The rabbit prays in the morning.' },
+            { level: 'A1', title: 'يوم في المسجد', summary: 'قصة عن طفل يذهب إلى المسجد.', content: 'Ahmed goes to the mosque. He prays. He learns Quran.' },
+            { level: 'A1', title: 'الصداقة الحقيقية', summary: 'قصة عن صديقين يساعدان بعضهما.', content: 'Ali and Omar are friends. They help each other. They share food.' },
+            { level: 'A2', title: 'رحلة إلى الحديقة', summary: 'قصة عن عائلة تزور الحديقة.', content: 'The family goes to the park. They play and eat halal food. They thank Allah.' },
+            { level: 'A2', title: 'تعلم القرآن', summary: 'قصة عن طفل يتعلم القرآن.', content: 'Fatima reads Quran every day. She memorizes surahs. Her teacher praises her.' },
+            { level: 'A2', title: 'الصيام في رمضان', summary: 'قصة بسيطة عن الصيام.', content: 'In Ramadan, Muslims fast. They eat at sunset. They pray Taraweeh.' },
+            { level: 'B1', title: 'مغامرة في لندن', summary: 'رواية قصيرة عن شاب يسافر إلى لندن يواجه فيها تحديات متوسطة.', content: 'It was a chilly morning when Alex landed at Heathrow. He had to quickly adapt to the fast pace of the city. He visits the mosque and learns about Islamic history.' },
+            { level: 'B1', title: 'قصة النبي يوسف', summary: 'قصة مختصرة عن النبي يوسف.', content: 'Joseph was sold by his brothers. He became a leader in Egypt. He forgave his family.' },
+            { level: 'B1', title: 'الصدقة تغير الحياة', summary: 'قصة عن شخص يعطي صدقة.', content: 'A poor man gives charity. His life improves. He thanks Allah for blessings.' },
+            { level: 'B2', title: 'رحلة الحج', summary: 'قصة عن حجاج يؤدون الحج.', content: 'Pilgrims travel to Mecca. They perform Tawaf and Sa\'i. They learn patience and unity.' },
+            { level: 'B2', title: 'قصة النبي موسى', summary: 'قصة مفصلة عن النبي موسى.', content: 'Moses confronts Pharaoh. He parts the sea. He receives the Torah on Mount Sinai.' },
+            { level: 'B2', title: 'البيئة والإسلام', summary: 'مقالة عن حماية البيئة في الإسلام.', content: 'Islam teaches to protect nature. Muslims should recycle and avoid waste.' },
+            { level: 'C1', title: 'فلسفة العقل والآلة', summary: 'مقالة تحليلية متقدمة تناقش العلاقة بين الذكاء الاصطناعي والوعي البشري.', content: 'The discourse surrounding post-humanistic singularity often converges on the contentious juxtaposition of computational efficacy and experiential consciousness. This posits a critical interrogation of... In Islam, the soul is divine.' },
+            { level: 'C1', title: 'قصة النبي إبراهيم', summary: 'قصة متقدمة عن النبي إبراهيم.', content: 'Abraham builds the Kaaba. He sacrifices for Allah. His faith is tested.' },
+            { level: 'C1', title: 'الاقتصاد الإسلامي', summary: 'مقالة عن مبادئ الاقتصاد في الإسلام.', content: 'Islamic economy prohibits interest. It encourages Zakat and fair trade.' },
+            { level: 'C2', title: 'التاريخ الإسلامي', summary: 'مقالة متقدمة عن العصور الإسلامية.', content: 'The Golden Age of Islam saw advancements in science and philosophy. Scholars like Al-Khwarizmi contributed greatly.' },
+            { level: 'C2', title: 'قصة النبي محمد صلى الله عليه وسلم', summary: 'سيرة مختصرة متقدمة.', content: 'Prophet Muhammad received revelation in Mecca. He migrated to Medina. He established a just society.' },
+            { level: 'C2', title: 'الأخلاق في الإسلام', summary: 'مقالة فلسفية عن الأخلاق.', content: 'Islamic ethics emphasize justice, mercy, and truthfulness, derived from Quran and Sunnah.' },
+        ];
+
+        const mindMapsData = [
+            { title: 'خريطة ذهنية: بناء الجملة الأساسي', description: 'توضح ترتيب الفاعل والفعل والمفعول في الجملة الإنجليزية.', link: 'https://placehold.co/400x200/4c1d95/ffffff?text=Grammar+Map' },
+            { title: 'خريطة ذهنية: أزمنة المستقبل', description: 'مقارنة بين Future Simple, Future Continuous, Going To.', link: 'https://placehold.co/400x200/4c1d95/ffffff?text=Tenses+Map' },
+            { title: 'خريطة ذهنية: القواعد الإسلامية', description: 'خريطة عن الأخلاق في الإنجليزية.', link: 'https://placehold.co/400x200/4c1d95/ffffff?text=Islamic+Ethics+Map' },
+        ];
+
+        const fullVocabularyData = [
+            { word: 'Acquire', meaning: 'يكتسب / يحصل على', level: 'B2' },
+            { word: 'Adapt', meaning: 'يتكيف / يتأقلم', level: 'B1' },
+            { word: 'Benefit', meaning: 'فائدة / يستفيد', level: 'A2' },
+            { word: 'Cohesive', meaning: 'متماسك / مترابط', level: 'C1' },
+            { word: 'Deem', meaning: 'يعتبر / يعد', level: 'C2' },
+            { word: 'Elaborate', meaning: 'يفصل / يشرح بالتفصيل', level: 'B2' },
+            { word: 'Fundamental', meaning: 'أساسي / جوهري', level: 'B1' },
+            { word: 'Generate', meaning: 'يولد / ينتج', level: 'B2' },
+            { word: 'Host', meaning: 'مضيف / يستضيف', level: 'A2' },
+            { word: 'Implement', meaning: 'يطبق / ينفذ', level: 'C1' },
+            { word: 'Integrate', meaning: 'يدمج / يكامل', level: 'B2' },
+            { word: 'Justice', meaning: 'عدل / إنصاف', level: 'B1' },
+            { word: 'Keen', meaning: 'شديد / حريص', level: 'B1' },
+            { word: 'Lethargy', meaning: 'خمول / كسل', level: 'C2' },
+            { word: 'Merge', meaning: 'يدمج / يدمج', level: 'B2' },
+            { word: 'Navigate', meaning: 'يتنقل / يوجه', level: 'B1' },
+            { word: 'Objective', meaning: 'هدف / موضوعي', level: 'C1' },
+            { word: 'Pervasive', meaning: 'منتشر / متغلغل', level: 'C2' },
+            { word: 'Quota', meaning: 'حصة / نصيب', level: 'C1' },
+            { word: 'Resilient', meaning: 'مرن / صلب', level: 'C2' },
+            { word: 'Subtle', meaning: 'دقيق / خفي', level: 'B2' },
+            { word: 'Tranquil', meaning: 'هادئ / ساكن', level: 'C1' },
+            { word: 'Underpin', meaning: 'يدعم / يعزز', level: 'C2' },
+            { word: 'Venture', meaning: 'مغامرة / يتجرأ', level: 'B2' },
+            { word: 'Warrant', meaning: 'يبرر / ضمان', level: 'C2' },
+            { word: 'Yield', meaning: 'يخضع / ينتج', level: 'B2' },
+            { word: 'Zealous', meaning: 'متحمس / غيور', level: 'C2' },
+            { word: 'Hello', meaning: 'أهلاً / مرحباً', level: 'A1' },
+            { word: 'Cat', meaning: 'قطة', level: 'A1' },
+            { word: 'Book', meaning: 'كتاب', level: 'A1' },
+            { word: 'Table', meaning: 'طاولة', level: 'A1' },
+            { word: 'Run', meaning: 'يركض', level: 'A1' },
+            { word: 'Quickly', meaning: 'بسرعة', level: 'A2' },
+            { word: 'However', meaning: 'مع ذلك / لكن', level: 'A2' },
+            { word: 'Decide', meaning: 'يقرر', level: 'B1' },
+            { word: 'Experience', meaning: 'تجربة / يختبر', level: 'B1' },
+            { word: 'Faith', meaning: 'إيمان', level: 'B1' },
+            { word: 'Prayer', meaning: 'صلاة', level: 'A1' },
+            { word: 'Charity', meaning: 'صدقة', level: 'B1' },
+            { word: 'Fasting', meaning: 'صيام', level: 'B1' },
+            { word: 'Pilgrimage', meaning: 'حج', level: 'B2' },
+            { word: 'Mosque', meaning: 'مسجد', level: 'A2' },
+            { word: 'Quran', meaning: 'قرآن', level: 'A1' },
+            { word: 'Prophet', meaning: 'نبي', level: 'B1' },
+            { word: 'Allah', meaning: 'الله', level: 'A1' },
+            { word: 'Mercy', meaning: 'رحمة', level: 'B2' },
+            { word: 'Justice', meaning: 'عدل', level: 'B2' },
+            { word: 'Patience', meaning: 'صبر', level: 'B1' },
+            { word: 'Knowledge', meaning: 'معرفة', level: 'A2' },
+            { word: 'Wisdom', meaning: 'حكمة', level: 'C1' },
+            { word: 'Honesty', meaning: 'صدق', level: 'B1' },
+            { word: 'Generosity', meaning: 'كرم', level: 'B2' },
+            { word: 'Humility', meaning: 'تواضع', level: 'C1' },
+            { word: 'Forgiveness', meaning: 'مغفرة', level: 'B2' },
+            { word: 'Gratitude', meaning: 'شكر', level: 'B1' },
+            { word: 'Unity', meaning: 'وحدة', level: 'C1' },
+            { word: 'Peace', meaning: 'سلام', level: 'A1' },
+            { word: 'Love', meaning: 'حب', level: 'A1' },
+            { word: 'Family', meaning: 'أسرة', level: 'A1' },
+            { word: 'Friendship', meaning: 'صداقة', level: 'A2' },
+            { word: 'Community', meaning: 'مجتمع', level: 'B1' },
+            { word: 'Environment', meaning: 'بيئة', level: 'B2' },
+            { word: 'Health', meaning: 'صحة', level: 'A2' },
+            { word: 'Education', meaning: 'تعليم', level: 'B1' },
+            { word: 'Science', meaning: 'علم', level: 'B2' },
+            { word: 'History', meaning: 'تاريخ', level: 'B1' },
+            { word: 'Culture', meaning: 'ثقافة', level: 'B2' },
+            { word: 'Tradition', meaning: 'تقاليد', level: 'B1' },
+            { word: 'Festival', meaning: 'مهرجان', level: 'A2' },
+            { word: 'Eid', meaning: 'عيد', level: 'A2' },
+            { word: 'Ramadan', meaning: 'رمضان', level: 'A2' },
+            { word: 'Zakat', meaning: 'زكاة', level: 'B1' },
+            { word: 'Sadaqah', meaning: 'صدقة', level: 'B1' },
+            { word: 'Halal', meaning: 'حلال', level: 'A1' },
+            { word: 'Haram', meaning: 'حرام', level: 'A1' },
+            { word: 'Wudu', meaning: 'وضوء', level: 'A2' },
+            { word: 'Salah', meaning: 'صلاة', level: 'A1' },
+            { word: 'Sawm', meaning: 'صوم', level: 'B1' },
+            { word: 'Hajj', meaning: 'حج', level: 'B1' },
+            { word: 'Shahada', meaning: 'شهادة', level: 'B1' },
+            { word: 'Tawhid', meaning: 'توحيد', level: 'C1' },
+            { word: 'Akhlak', meaning: 'أخلاق', level: 'C1' },
+            { word: 'Fiqh', meaning: 'فقه', level: 'C2' },
+            { word: 'Hadith', meaning: 'حديث', level: 'B2' },
+            { word: 'Sunnah', meaning: 'سنة', level: 'B2' },
+            { word: 'Ummah', meaning: 'أمة', level: 'C1' },
+            { word: 'Caliph', meaning: 'خليفة', level: 'C2' },
+            { word: 'Imam', meaning: 'إمام', level: 'B1' },
+            { word: 'Mufti', meaning: 'مفتي', level: 'C2' },
+            { word: 'Sheikh', meaning: 'شيخ', level: 'B2' },
+            { word: 'Dua', meaning: 'دعاء', level: 'A2' },
+            { word: 'Istighfar', meaning: 'استغفار', level: 'B2' },
+            { word: 'Dhikr', meaning: 'ذكر', level: 'B1' },
+            { word: 'Tasbih', meaning: 'تسبيح', level: 'B1' },
+            { word: 'Tahlil', meaning: 'تهليل', level: 'B2' },
+            { word: 'Takbir', meaning: 'تكبير', level: 'A2' },
+            { word: 'Jannah', meaning: 'جنة', level: 'B1' },
+            { word: 'Jahannam', meaning: 'جهنم', level: 'B1' },
+            { word: 'Akhirah', meaning: 'آخرة', level: 'C1' },
+            { word: 'Dunya', meaning: 'دنيا', level: 'B1' },
+            { word: 'Barzakh', meaning: 'برزخ', level: 'C2' },
+            { word: 'Qiyamah', meaning: 'قيامة', level: 'C1' },
+            { word: 'Sirat', meaning: 'صراط', level: 'C2' },
+            { word: 'Mizan', meaning: 'ميزان', level: 'C2' },
+            { word: 'Angels', meaning: 'ملائكة', level: 'B1' },
+            { word: 'Jinn', meaning: 'جن', level: 'B2' },
+            { word: 'Shaitan', meaning: 'شيطان', level: 'B1' },
+            { word: 'Iblis', meaning: 'إبليس', level: 'C1' },
+            { word: 'Revelation', meaning: 'وحي', level: 'C1' },
+            { word: 'Miracle', meaning: 'معجزة', level: 'B2' },
+            { word: 'Prophecy', meaning: 'نبوة', level: 'C2' },
+            { word: 'Monotheism', meaning: 'توحيد', level: 'C2' },
+            { word: 'Polytheism', meaning: 'شرك', level: 'C2' },
+            { word: 'Idolatry', meaning: 'عبادة أصنام', level: 'C2' },
+            { word: 'Atheism', meaning: 'إلحاد', level: 'C2' },
+            { word: 'Belief', meaning: 'اعتقاد', level: 'B1' },
+            { word: 'Doubt', meaning: 'شك', level: 'B2' },
+            { word: 'Certainty', meaning: 'يقين', level: 'C1' },
+            { word: 'Repentance', meaning: 'توبة', level: 'B2' },
+            { word: 'Sin', meaning: 'خطيئة', level: 'B1' },
+            { word: 'Virtue', meaning: 'فضيلة', level: 'C1' },
+            { word: 'Vice', meaning: 'رذيلة', level: 'C1' },
+            { word: 'Reward', meaning: 'ثواب', level: 'B1' },
+            { word: 'Punishment', meaning: 'عقاب', level: 'B1' },
+            { word: 'Heaven', meaning: 'جنة', level: 'B1' },
+            { word: 'Hell', meaning: 'جهنم', level: 'B1' },
+            { word: 'Afterlife', meaning: 'آخرة', level: 'C1' },
+            { word: 'Resurrection', meaning: 'بعث', level: 'C2' },
+            { word: 'Judgment', meaning: 'حكم', level: 'C1' },
+            { word: 'Accountability', meaning: 'مساءلة', level: 'C2' },
+            { word: 'Compassion', meaning: 'شفقة', level: 'C1' },
+            { word: 'Empathy', meaning: 'تعاطف', level: 'C1' },
+            { word: 'Sympathy', meaning: 'تعاطف', level: 'B2' },
+            { word: 'Tolerance', meaning: 'تسامح', level: 'C1' },
+            { word: 'Respect', meaning: 'احترام', level: 'A2' },
+            { word: 'Dignity', meaning: 'كرامة', level: 'C1' },
+            { word: 'Equality', meaning: 'مساواة', level: 'B2' },
+            { word: 'Brotherhood', meaning: 'أخوة', level: 'B2' },
+            { word: 'Solidarity', meaning: 'تضامن', level: 'C2' },
+            { word: 'Cooperation', meaning: 'تعاون', level: 'B1' },
+            { word: 'Harmony', meaning: 'انسجام', level: 'C1' },
+            { word: 'Conflict', meaning: 'صراع', level: 'B2' },
+            { word: 'Resolution', meaning: 'حل', level: 'B2' },
+            { word: 'Mediation', meaning: 'وساطة', level: 'C2' },
+            { word: 'Arbitration', meaning: 'تحكيم', level: 'C2' },
+            { word: 'Negotiation', meaning: 'تفاوض', level: 'C1' },
+            { word: 'Diplomacy', meaning: 'دبلوماسية', level: 'C2' },
+            { word: 'Treaty', meaning: 'معاهدة', level: 'C2' },
+            { word: 'Alliance', meaning: 'تحالف', level: 'C2' },
+            { word: 'Sovereignty', meaning: 'سيادة', level: 'C2' },
+            { word: 'Independence', meaning: 'استقلال', level: 'B2' },
+            { word: 'Freedom', meaning: 'حرية', level: 'B1' },
+            { word: 'Liberty', meaning: 'حرية', level: 'C1' },
+            { word: 'Rights', meaning: 'حقوق', level: 'B1' },
+            { word: 'Responsibilities', meaning: 'مسؤوليات', level: 'B2' },
+            { word: 'Duty', meaning: 'واجب', level: 'B1' },
+            { word: 'Obligation', meaning: 'التزام', level: 'C1' },
+            { word: 'Ethics', meaning: 'أخلاقيات', level: 'C1' },
+            { word: 'Morality', meaning: 'أخلاق', level: 'C1' },
+            { word: 'Integrity', meaning: 'نزاهة', level: 'C2' },
+            { word: 'Transparency', meaning: 'شفافية', level: 'C2' },
+            { word: 'Accountability', meaning: 'محاسبة', level: 'C2' },
+            { word: 'Governance', meaning: 'حكم', level: 'C2' },
+            { word: 'Leadership', meaning: 'قيادة', level: 'B2' },
+            { word: 'Vision', meaning: 'رؤية', level: 'C1' },
+            { word: 'Mission', meaning: 'مهمة', level: 'C1' },
+            { word: 'Strategy', meaning: 'استراتيجية', level: 'C1' },
+            { word: 'Tactics', meaning: 'تكتيكات', level: 'C2' },
+            { word: 'Innovation', meaning: 'ابتكار', level: 'C1' },
+            { word: 'Creativity', meaning: 'إبداع', level: 'B2' },
+            { word: 'Inspiration', meaning: 'إلهام', level: 'C1' },
+            { word: 'Motivation', meaning: 'تحفيز', level: 'B2' },
+            { word: 'Ambition', meaning: 'طموح', level: 'B2' },
+            { word: 'Achievement', meaning: 'إنجاز', level: 'B1' },
+            { word: 'Success', meaning: 'نجاح', level: 'A2' },
+            { word: 'Failure', meaning: 'فشل', level: 'B1' },
+            { word: 'Perseverance', meaning: 'إصرار', level: 'C1' },
+            { word: 'Resilience', meaning: 'صمود', level: 'C2' },
+            { word: 'Adaptability', meaning: 'تكيف', level: 'C1' },
+            { word: 'Flexibility', meaning: 'مرونة', level: 'B2' },
+            { word: 'Growth', meaning: 'نمو', level: 'B2' },
+            { word: 'Development', meaning: 'تطور', level: 'B2' },
+            { word: 'Progress', meaning: 'تقدم', level: 'B1' },
+            { word: 'Advancement', meaning: 'تقدم', level: 'C1' },
+            { word: 'Sustainability', meaning: 'استدامة', level: 'C2' },
+            { word: 'Conservation', meaning: 'حفظ', level: 'C1' },
+            { word: 'Preservation', meaning: 'حماية', level: 'C1' },
+            { word: 'Ecosystem', meaning: 'نظام بيئي', level: 'C2' },
+            { word: 'Biodiversity', meaning: 'تنوع بيولوجي', level: 'C2' },
+            { word: 'Climate', meaning: 'مناخ', level: 'B2' },
+            { word: 'Change', meaning: 'تغير', level: 'A1' },
+            { word: 'Global', meaning: 'عالمي', level: 'B1' },
+            { word: 'Warming', meaning: 'احتباس حراري', level: 'C1' },
+            { word: 'Pollution', meaning: 'تلوث', level: 'B2' },
+            { word: 'Recycling', meaning: 'إعادة تدوير', level: 'B1' },
+            { word: 'Renewable', meaning: 'متجدد', level: 'C1' },
+            { word: 'Energy', meaning: 'طاقة', level: 'B1' },
+            { word: 'Solar', meaning: 'شمسي', level: 'B2' },
+            { word: 'Wind', meaning: 'رياح', level: 'A2' },
+            { word: 'Power', meaning: 'قوة', level: 'A2' },
+            { word: 'Technology', meaning: 'تكنولوجيا', level: 'B1' },
+            { word: 'Innovation', meaning: 'ابتكار', level: 'C1' },
+            { word: 'Artificial', meaning: 'اصطناعي', level: 'C1' },
+            { word: 'Intelligence', meaning: 'ذكاء', level: 'B2' },
+            { word: 'Robotics', meaning: 'روبوتات', level: 'C2' },
+            { word: 'Automation', meaning: 'أتمتة', level: 'C2' },
+            { word: 'Digital', meaning: 'رقمي', level: 'B2' },
+            { word: 'Transformation', meaning: 'تحول', level: 'C1' },
+        ];
+
+        // ---------------------------------------------
+        // 2. إدارة واجهة المستخدم (UI Management)
+        // ---------------------------------------------
+
+        let currentLevel = null;
+        const views = document.querySelectorAll('.view');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        /**
+         * تبديل عرض الواجهات الرئيسية
+         * @param {string} viewId - معرف الواجهة المراد عرضها
+         */
+        function navigate(viewId) {
+            views.forEach(view => {
+                view.classList.add('hidden');
+            });
+            document.getElementById(`${viewId}-view`).classList.remove('hidden');
+
+            // وظائف خاصة لكل واجهة
+            if (viewId === 'home') {
+                document.getElementById('level-detail-card').classList.add('hidden');
+            } else if (viewId === 'stories') {
+                renderStories();
+            } else if (viewId === 'flashcards') {
+                renderMindMaps();
+            } else if (viewId === 'vocabulary') {
+                renderFullVocabulary(fullVocabularyData.slice(0, 100));
+            }
+        }
+
+        /**
+         * إنشاء وعرض بطاقات مستويات CEFR
+         */
+        function renderLevelsGrid() {
+            const grid = document.getElementById('levels-grid');
+            grid.innerHTML = '';
+            Object.keys(levelsData).forEach(level => {
+                const data = levelsData[level];
+                const card = `
+                    <div onclick="selectLevel('${level}')"
+                         class="level-card ${data.color} text-white p-6 rounded-2xl shadow-xl hover:shadow-2xl transition duration-300 cursor-pointer transform hover:-translate-y-1">
+                        <h3 class="text-3xl font-bold mb-2">${level} - ${data.title}</h3>
+                        <p class="text-base">${data.description}</p>
+                        <div class="mt-4 text-sm font-light opacity-80">انقر لعرض جميع القواعد</div>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
+
+        /**
+         * تحديد وعرض تفاصيل المستوى المحدد
+         * @param {string} level - رمز المستوى (A1, B2, etc.)
+         */
+        window.selectLevel = function(level) {
+            currentLevel = level;
+            const data = levelsData[level];
+            document.getElementById('detail-level-title').textContent = `${level} - ${data.title}`;
+            document.getElementById('detail-level-description').textContent = data.description;
+            document.getElementById('level-detail-card').classList.remove('hidden');
+            document.getElementById('level-detail-card').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        /**
+         * عرض محتوى محدد (قواعد، مفردات، دروس) للمستوى الحالي
+         * @param {string} contentType - نوع المحتوى ('grammar', 'vocabulary', 'multimedia')
+         * @param {string} level - رمز المستوى
+         */
+        window.showContent = function(contentType, level) {
+            navigate('content');
+            const content = contentData[level] ? contentData[level][contentType] || 'لا يوجد محتوى لهذا القسم حالياً.' : 'لا يوجد بيانات لهذا المستوى.';
+
+            let title;
+            if (contentType === 'grammar') title = 'القواعد الشاملة';
+            else if (contentType === 'vocabulary') title = 'المفردات الأساسية';
+            else if (contentType === 'multimedia') title = 'الدروس المرئية والمسموعة';
+
+            document.getElementById('content-title').textContent = `${title} (${level})`;
+            document.getElementById('content-area').innerHTML = content.replace(/\n/g, '<br><br>');
+        }
+
+        /**
+         * عرض القصص في الواجهة الخاصة بها
+         */
+        function renderStories() {
+            const grid = document.getElementById('stories-grid');
+            grid.innerHTML = '';
+            storiesData.forEach((story, index) => {
+                const data = levelsData[story.level];
+                const card = `
+                    <div class="bg-white p-6 rounded-2xl shadow-xl border-t-4 ${data.color} flex flex-col justify-between">
+                        <div>
+                            <span class="text-sm font-semibold text-gray-500">${story.level}</span>
+                            <h4 class="text-2xl font-bold text-gray-800 my-2">${story.title}</h4>
+                            <p class="text-gray-600 mb-4">${story.summary}</p>
+                        </div>
+                        <button onclick="readStory(${index})" class="mt-4 w-full bg-indigo-600 text-white p-3 rounded-xl hover:bg-indigo-700 transition duration-300 font-semibold">قراءة القصة</button>
+                    </div>
+                `;
+                grid.innerHTML += card;
+            });
+        }
+
+        /**
+         * قراءة القصة (تحويل الواجهة لعرض القصة كاملة)
+         * @param {number} index - مؤشر القصة في مصفوفة البيانات
+         */
+        window.readStory = function(index) {
+            const story = storiesData[index];
+            navigate('content');
+            document.getElementById('content-title').textContent = `قراءة القصة: ${story.title} (${story.level})`;
+            document.getElementById('content-area').innerHTML = `
+                <div class="prose max-w-none text-gray-800 text-xl leading-relaxed text-arabic">
+                    ${story.content.replace(/\n/g, '<br><br>')}
+                </div>
+                <button onclick="navigate('stories')" class="mt-8 text-indigo-600 hover:text-indigo-800 font-semibold">العودة لمكتبة القصص</button>
+            `;
+        }
+
+        /**
+         * عرض بطاقات الخرائط الذهنية
+         */
+        function renderMindMaps() {
+            const container = document.getElementById('mindmap-container');
+            container.innerHTML = '';
+            if (mindMapsData.length === 0) {
+                container.innerHTML = `<p class="text-center text-gray-500 col-span-full">لا تتوفر خرائط ذهنية حالياً.</p>`;
+                return;
+            }
+
+            mindMapsData.forEach(map => {
+                const card = `
+                    <div class="bg-white p-6 rounded-2xl shadow-xl border-r-4 border-purple-600">
+                        <h4 class="text-2xl font-bold text-gray-800 mb-2">${map.title}</h4>
+                        <p class="text-gray-600 mb-4">${map.description}</p>
+                        <a href="${map.link}" target="_blank" class="text-purple-600 hover:text-purple-800 font-semibold flex items-center transition duration-300">
+                            عرض الخريطة (صورة وهمية)
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+        }
+
+        /**
+         * معالجة وعرض المفردات الشاملة (بحث وتصفية)
+         * @param {Array<Object>} [data=fullVocabularyData] - بيانات المفردات المراد عرضها
+         */
+        window.renderFullVocabulary = function(data = fullVocabularyData) {
+            const container = document.getElementById('vocabulary-results');
+            const searchTerm = document.getElementById('vocab-search').value.toLowerCase().trim();
+            const levelFilter = document.getElementById('vocab-level-filter').value;
+
+            const filteredData = data.filter(item => {
+                const matchesSearch = item.word.toLowerCase().includes(searchTerm) || item.meaning.includes(searchTerm);
+                const matchesLevel = levelFilter === '' || item.level === levelFilter;
+                return matchesSearch && matchesLevel;
+            });
+
+            container.innerHTML = '';
+
+            if (filteredData.length === 0) {
+                container.innerHTML = `<div class="text-center p-8 text-gray-500 col-span-full"><p class="text-xl">عذراً، لا توجد مفردات تطابق معايير البحث.</p></div>`;
+                return;
+            }
+
+            filteredData.slice(0, 100).forEach(item => {
+                const card = `
+                    <div class="p-3 bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-indigo-50 transition duration-150">
+                        <span class="text-lg font-bold text-indigo-700">${item.word}</span>
+                        <span class="text-xs font-semibold text-gray-500 mr-2 border rounded-full px-2 py-0.5">${item.level}</span>
+                        <p class="text-gray-600 mt-1">${item.meaning}</p>
+                    </div>
+                `;
+                container.innerHTML += card;
+            });
+
+            if (filteredData.length > 100) {
+                container.innerHTML += `<div class="text-center p-3 text-gray-500 col-span-full">تم عرض أول 100 نتيجة من أصل ${filteredData.length} نتيجة مطابقة.</div>`;
+            }
+        }
+
+        /**
+         * إضافة رسالة إلى واجهة الدردشة
+         */
+        function appendMessage(text, sender) {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'flex ' + (sender === 'user' ? 'justify-start' : 'justify-end');
+
+            const textContainer = document.createElement('div');
+            textContainer.className = 'max-w-xs sm:max-w-md p-4 rounded-xl shadow-md text-arabic ' +
+                (sender === 'user' ? 'bg-indigo-600 text-white rounded-tl-none' : 'bg-indigo-100 text-indigo-800 rounded-tr-none');
+
+            textContainer.style.overflowWrap = 'break-word';
+
+            if (sender === 'ai') {
+                textContainer.innerHTML = `<span class="typing-cursor"></span>`;
+                messageElement.appendChild(textContainer);
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+                simulateTyping(textContainer, text);
+            } else {
+                textContainer.textContent = text;
+                messageElement.appendChild(textContainer);
+                chatBox.appendChild(messageElement);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        /**
+         * محاكاة تأثير الكتابة
+         */
+        function simulateTyping(element, fullText) {
+            let index = 0;
+            element.innerHTML = '';
+            const interval = setInterval(() => {
+                if (index < fullText.length) {
+                    element.textContent += fullText.charAt(index);
+                    index++;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 25);
+        }
+
+        /**
+         * إرس
